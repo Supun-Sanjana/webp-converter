@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebP Studio — Fast JPG & PNG to WebP Converter</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="brand">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h1>WebP Studio</h1>
+            <p class="tagline">Convert JPG & PNG to next-gen WebP with up to 80% smaller file sizes</p>
+          </div>
+        </div>
+        <div class="header-badges">
+          <span class="badge badge-accent">Node.js + Sharp</span>
+          <span class="badge badge-subtle">Lossless & Lossy</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Settings Panel -->
+      <section class="card settings-card">
+        <div class="card-header">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="title-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+            </svg>
+            <h2>Conversion Settings</h2>
+          </div>
+          <button id="resetSettingsBtn" class="btn btn-ghost btn-sm">Reset Defaults</button>
+        </div>
+
+        <div class="settings-grid">
+          <!-- Quality Slider -->
+          <div class="setting-item quality-setting">
+            <div class="setting-label-row">
+              <label for="qualityRange">Quality: <strong id="qualityValue">82%</strong></label>
+              <div class="preset-buttons">
+                <button type="button" class="preset-btn" data-quality="95">Max (95)</button>
+                <button type="button" class="preset-btn active" data-quality="82">High (82)</button>
+                <button type="button" class="preset-btn" data-quality="70">Eco (70)</button>
+              </div>
+            </div>
+            <input type="range" id="qualityRange" min="1" max="100" value="82" class="slider">
+            <p class="setting-hint">Higher quality keeps fine details; lower values achieve maximum compression.</p>
+          </div>
+
+          <!-- Lossless Toggle -->
+          <div class="setting-item checkbox-setting">
+            <label class="toggle-switch">
+              <input type="checkbox" id="losslessCheckbox">
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="toggle-info">
+              <label for="losslessCheckbox" class="toggle-label">Lossless Compression</label>
+              <p class="setting-hint">Bit-for-bit exact copy. Best for transparent PNGs, pixel art, diagrams, and logos.</p>
+            </div>
+          </div>
+
+          <!-- Resize Options -->
+          <div class="setting-item resize-setting">
+            <label class="toggle-label">Optional Resize (Max dimensions)</label>
+            <div class="resize-inputs">
+              <div class="input-with-affix">
+                <input type="number" id="maxWidthInput" placeholder="Width" min="10" max="10000">
+                <span class="affix">px</span>
+              </div>
+              <span class="times-separator">×</span>
+              <div class="input-with-affix">
+                <input type="number" id="maxHeightInput" placeholder="Height" min="10" max="10000">
+                <span class="affix">px</span>
+              </div>
+            </div>
+            <p class="setting-hint">Keeps original aspect ratio without upscaling.</p>
+          </div>
+
+          <!-- Compression Effort -->
+          <div class="setting-item">
+            <div class="setting-label-row">
+              <label for="effortSelect">Compression Effort</label>
+            </div>
+            <select id="effortSelect" class="form-select">
+              <option value="1">1 - Fast (Faster processing)</option>
+              <option value="4" selected>4 - Balanced (Recommended)</option>
+              <option value="6">6 - Maximum (Smallest file size)</option>
+            </select>
+            <p class="setting-hint">Controls CPU effort during WebP encoding.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dropzone -->
+      <section class="dropzone-section">
+        <div id="dropzone" class="dropzone">
+          <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg" multiple hidden>
+          <div class="dropzone-inner">
+            <div class="upload-icon-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+            </div>
+            <h3>Drag & Drop your images here</h3>
+            <p class="dropzone-sub">or <button type="button" id="browseBtn" class="browse-link">browse files</button> from your computer</p>
+            <div class="supported-formats">
+              <span class="format-pill">PNG</span>
+              <span class="format-pill">JPG / JPEG</span>
+              <span class="format-pill-extra">Batch conversion up to 50 files</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results & Queue Container -->
+      <section id="resultsSection" class="results-section hidden">
+        <div class="results-toolbar">
+          <div class="toolbar-stats">
+            <h3 id="queueSummaryTitle">Files to Convert</h3>
+            <div class="stats-pills">
+              <span id="totalFilesBadge" class="pill-stat">0 files</span>
+              <span id="totalSavingsBadge" class="pill-stat pill-savings hidden">0% saved</span>
+            </div>
+          </div>
+
+          <div class="toolbar-actions">
+            <button id="convertAllBtn" class="btn btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              Convert All to WebP
+            </button>
+            <button id="downloadZipBtn" class="btn btn-accent hidden">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Download All as .ZIP
+            </button>
+            <button id="clearAllBtn" class="btn btn-outline">Clear All</button>
+          </div>
+        </div>
+
+        <!-- Conversion Progress Bar (when converting) -->
+        <div id="conversionProgressBar" class="progress-bar-container hidden">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+        </div>
+
+        <!-- Files List / Cards -->
+        <div id="fileList" class="file-list"></div>
+      </section>
+    </main>
+
+    <!-- Comparison Modal -->
+    <div id="compareModal" class="modal hidden">
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 id="modalTitle">Before & After Comparison</h3>
+          <button id="closeModalBtn" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="compare-container" id="compareContainer">
+            <img id="compareBeforeImg" class="compare-img compare-before" alt="Original Image">
+            <div class="compare-after-wrapper" id="compareAfterWrapper">
+              <img id="compareAfterImg" class="compare-img compare-after" alt="Converted WebP Image">
+            </div>
+            <div class="compare-slider-handle" id="compareHandle">
+              <div class="handle-line"></div>
+              <div class="handle-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l-4 3 4 3m8-6l4 3-4 3"/>
+                </svg>
+              </div>
+              <div class="handle-line"></div>
+            </div>
+            <div class="compare-label label-before">Original</div>
+            <div class="compare-label label-after">WebP</div>
+          </div>
+          <div class="compare-info-bar">
+            <div class="compare-stat-item">
+              <span class="compare-stat-label">Original:</span>
+              <span id="compareOriginalInfo" class="compare-stat-val">-</span>
+            </div>
+            <div class="compare-stat-item">
+              <span class="compare-stat-label">WebP Output:</span>
+              <span id="compareWebpInfo" class="compare-stat-val">-</span>
+            </div>
+            <div class="compare-stat-item">
+              <span class="compare-stat-label">Reduction:</span>
+              <span id="compareSavingsInfo" class="compare-stat-badge">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>WebP Studio &bull; Powered by libvips and Node.js &bull; Fast, Private & On-Device</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
